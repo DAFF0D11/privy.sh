@@ -1,0 +1,40 @@
+* Privy.sh
+
+Privy.sh uses the excellent [[https://github.com/FiloSottile/age][Age]] encryption tool to encrypt and decrypt all top level directories in
+a git repository using a passphrase protected key.
+
+** Use-case
+You desire the convenience of Github for small encrypted file storage.
+
+** Is this naughty?
+This is mildly naughty.
+
+
+Github is a free service and you are abusing the kindness of their hearts,
+sucking the very lifeblood out of their business to store your encrypted files for free. (you scum)
+
+** How will I sleep at night?
+- Github is a 7.5 billion dollar company.
+- Github probably used your code to build their proprietary Github Copilot
+  software. \\
+  (Did they forget to ask you too?)
+- Github is owned by Micro$oft, so its only a matter of time before they're ruined anyways.
+- Is this really a moral quandary? You may be over thinking this.
+
+** How to use
+1. Install [[https://github.com/FiloSottile/age][Age v1.0.0+]] for the ~age~ and ~age-keygen~ commands.
+2. Clone privy.sh. ~git clone https://github.com/DAFF0D11/privy.sh privy~
+3. Create a (private) repository and update the remote of privy with your
+   repository url. \\
+   ~git remote set-url origin new.git.url~
+4. Update ~PROJECT_DIR=~/privy~ to the directory of your git repository (do not use quotes)
+5. run ~./privy.sh generate-key~ to generate a passphrase protected key.age file.
+6. Add directories you wish to encrypt.
+7. run ~./privy.sh update~ to encrypt and push to git origin.
+
+use ~./privy.sh help~ for a full list of options.
+
+** Limitation
+
+Github allows 100MB per file and 1GB per repository. \\
+/(Exceeding 1GB per repository directly correlates to an increase in naughtiness)/
