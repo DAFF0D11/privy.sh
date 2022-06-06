@@ -68,7 +68,9 @@ decrypt_key_age (){
 }
 
 remove_key (){
-	rm "$KEY"
+	if [ -f "$KEY" ]; then
+		rm "$KEY"
+	fi
 }
 
 encrypt_tar (){
@@ -84,7 +86,14 @@ encrypt_tar (){
 }
 
 decrypt_untar (){
-	age -d -i "$KEY" "$1" | tar xvfz -
+	if [ -f "$KEY" ]; then
+		age -d -i "$KEY" "$1" | tar xvfz -
+	else
+		echo "Missing unencrypted key"
+		echo "This should not happen."
+		echo "To manually create an unencrypted key use './privy.sh decrypt-key'"
+		exit
+	fi
 }
 
 list_dirs (){
