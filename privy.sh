@@ -53,7 +53,7 @@ create_public_key (){
 		PB=$(age-keygen -y "$KEY")
 		echo "$PB" > "$KEY".pub
 	else
-		echo "No key, run './privy.sh decrypt-key' to create one."
+		echo "No unencrypted key, run './privy.sh decrypt-key' to create one."
 		exit
 	fi
 }
@@ -62,7 +62,7 @@ decrypt_key_age (){
 	if [ -f "$KEY".age ]; then
 		age -d "$KEY".age > "$KEY"
 	else
-		echo "No key, run './privy.sh generate-key' to create one."
+		echo "No encrypted key, run './privy.sh generate-key' to create one."
 		exit
 	fi
 }
@@ -78,9 +78,9 @@ encrypt_tar (){
 		PUBLIC=$(cat "$KEY".pub)
 		tar -cvz "$1" | age -r "$PUBLIC" > "$1".tar.gz.age
 	else
-		echo "Missing public key!"
+		echo "Missing public key"
 		echo "This should have been created with 'generate-key'"
-		echo "Either 'generate-key' again, or if you already have a key use 'decrypt-key' to manually create it"
+		echo "Either './privy.sh generate-key' again, or if you already have a key use './privy.sh create-pub' to manually create it"
 		exit
 	fi
 }
@@ -165,7 +165,7 @@ main (){
 				update_gitignore
 				# Push everything to BRANCH
 				git_push
-				echo "Successfully updated!"
+				echo "Successfully updated"
 			else
 				echo "No directories to encrypt"
 				exit
