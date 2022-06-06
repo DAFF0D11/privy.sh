@@ -95,7 +95,7 @@ list_tar_gz_age (){
 	find * -maxdepth 0 -type f -name "*.tar.gz.age"
 }
 
-update_gitignore(){
+update_gitignore (){
 	# Update .gitignore with all directories and key file.
 
 	# Its okay for this to fail.
@@ -109,72 +109,86 @@ update_gitignore(){
 	fi
 }
 
-git_push(){
+git_push (){
 	git add .
 	git commit -m "auto update"
 	git push origin "$BRANCH"
 }
 
-case "$1" in
-	help) help;;
-	-h) help;;
-	generate-key)
-		check_project_dir
-		# Create a passphrase protected key.
-		generate_key_age
-		# Decrypt key.age to get unencrypted key.
-		decrypt_key_age
-		# Create key.pub from unencrypted key.
-		create_public_key
-		# Remove unencrypted key
-		remove_key
-		;;
-	decrypt-key)
-		check_project_dir
-		# Decrypt the passphrase protected key.
-		decrypt_key_age
-		;;
-	create-pub)
-		check_project_dir
-		decrypt_key_age
-		# Create key.pub from unencrypted key.
-		create_public_key
-		# Remove unencrypted key
-		remove_key
-		;;
-	update)
-		check_project_dir
-		# Check if there are directories to encrypt
-		if [ "$(list_dirs)" ]; then
-			# Encrypt and tar all directories.
-			for i in $(list_dirs); do
-				encrypt_tar "$i"
-			done
-			# Add all directories and key file to .gitignore.
-			update_gitignore
-			# Push everything to BRANCH
-			git_push
-			echo "Successfully updated!"
-		else
-			echo "No directories to encrypt"
-			exit
-		fi
-		;;
-	expand)
-		check_project_dir
-		# Check if there are tarballs to decrypt
-		if [ "$(list_tar_gz_age)" ]; then
-			# Get key for decrypting tarballs
+main (){
+	case "$1" in
+		help) help;;
+		-h) help;;
+		--help) help;;
+		generate-key)
+			check_project_dir
+			# Create a passphrase protected key.
+			generate_key_age
+			# Decrypt key.age to get unencrypted key.
 			decrypt_key_age
-			# Decrypt and untar all .tar.gz.age using unencrypted key
-			for i in $(list_tar_gz_age); do
-				decrypt_untar "$i"
-			done
-			# Remove unencrypted key (can be manually generated with 'decrypt-key').
+			# Create key.pub from unencrypted key.
+			create_public_key
+			# Remove unencrypted key
 			remove_key
-		else
-			echo "No tarballs to decrypt"
-			exit
-		fi
-		;;
-esac
+			;;
+		decrypt-key)
+			check_project_dir
+			# Decrypt the passphrase protected key.
+			decrypt_key_age
+			;;
+		create-pub)
+			check_project_dir
+			decrypt_key_age
+			# Create key.pub from unencrypted key.
+			create_public_key
+			# Remove unencrypted key
+			remove_key
+			;;
+		update)
+			check_project_dir
+			# Check if there are directories to encrypt
+			if [ "$(list_dirs)" ]; then
+				# Encrypt and tar all directories.
+				for i in $(list_dirs); do
+					encrypt_tar "$i"
+				done
+				# Add all directories and key file to .gitignore.
+				update_gitignore
+				# Push everything to BRANCH
+				git_push
+				echo "Successfully updated!"
+			else
+				echo "No directories to encrypt"
+				exit
+			fi
+			;;
+		expand)
+			check_project_dir
+			# Check if there are tarballs to decrypt
+			if [ "$(list_tar_gz_age)" ]; then
+				# Get key for decrypting tarballs
+				decrypt_key_age
+				# Decrypt and untar all .tar.gz.age using unencrypted key
+				for i in $(list_tar_gz_age); do
+					decrypt_untar "$i"
+				done
+				# Remove unencrypted key (can be manually generated with 'decrypt-key').
+				remove_key
+			else
+				echo "No tarballs to decrypt"
+				exit
+			fi
+			;;
+		*)
+			echo "Unrecognized option."
+			echo "Use './privy.sh help' for a list of possible commands"
+			;;
+	esac
+}
+
+if [ $# -eq 0 ]; then
+	# No arguments passed
+	echo "Use './privy.sh help' for a list of possible commands"
+else
+	main "$1"
+fi
